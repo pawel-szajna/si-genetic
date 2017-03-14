@@ -27,7 +27,7 @@ std::vector<int> schedule::satisfying(int task_id)
 	std::vector<int> satisfying;
 	task t = tasks.at(task_id - 1);
 	for (auto& res : resources) {
-		if (res.skills[t.skill] >= t.skill_level) {
+		if (res.skills.find(t.skill) != res.skills.end() && res.skills[t.skill] >= t.skill_level) {
 			satisfying.push_back(res.id);
 		}
 	}

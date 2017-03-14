@@ -16,9 +16,8 @@ namespace si::schedulers
 int earliest_time(schedule& s, std::vector<int>& times, int task_id)
 {
 	int earliest = 0;
-	for (int p : s.task_at(task_id).predecessors) {
-		task t = s.task_at(p);
-		int pred_finish = times[t.id - 1] + t.duration;
+	for (int p : s.tasks.at(task_id - 1).predecessors) {
+		int pred_finish = times[s.tasks.at(p - 1).id - 1] + s.tasks.at(p - 1).duration;
 		if (pred_finish > earliest) {
 			earliest = pred_finish;
 		}
