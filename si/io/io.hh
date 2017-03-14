@@ -10,7 +10,7 @@ namespace si::io
 {
 
 schedule load(std::istream& is);
-void save(std::ostream& os, schedule& s);
+void     save(std::ostream& os, schedule& s);
 
 }
 

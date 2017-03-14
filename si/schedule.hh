@@ -9,7 +9,7 @@ namespace si
 
 struct schedule
 {
-	std::map<int, task> tasks;
+	std::map<int, task>		tasks;
 	std::map<int, resource> resources;
 
 	std::vector<int> assigned_resources;

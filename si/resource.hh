@@ -6,7 +6,8 @@ namespace si
 
 struct resource
 {
-
+	double                     salary;
+	std::map<std::string, int> skills;
 };
 
 }
