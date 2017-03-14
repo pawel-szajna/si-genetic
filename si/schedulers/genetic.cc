@@ -1,5 +1,6 @@
 #include <functional>
 #include <map>
+#include <numeric>
 #include <random>
 #include <set>
 #include <string>
@@ -69,17 +70,44 @@ int cost_evaluator(schedule& s, sample& individual)
 	return result;
 }
 
-void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, evaluator evaluate, selector select)
+int roulette_selector(population p)
+{
+	return 0;
+}
+
+void evaluation(schedule& s, population p, sample& scores, evaluator evaluate, int& best, int& avg, int& worst)
+{
+	unsigned count = p.size();
+	worst = std::numeric_limits<int>::min();
+	best = std::numeric_limits<int>::max();
+	avg = 0;
+
+	for (unsigned i = 0; i < count; ++i) {
+		int score = evaluate(s, p.at(i));
+		scores[i] = score;
+		avg += score;
+		if (worst < score) worst = score;
+		if (best > score) best = score;
+	}
+
+	avg /= count;
+}
+
+void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, evaluator evaluate, selector select)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
 	int tasks = s.tasks.size();
+	int best, avg, worst;
 
 	population p = initialize(s, gen, pop, tasks);
+	sample scores(pop, 0);
 
-	for (auto& v : p) {
-		print_individual(v);
+	for (int epoch = 0; epoch < epochs; ++epoch) {
+		evaluation(s, p, scores, evaluate, best, avg, worst);
+		
+		if(!((epoch+1) % 50)) std::cout << "Epoch #" << (epoch+1) << ", best=" << best << ", avg=" << avg << ", worst=" << worst << std::endl;
 	}
 }
 
