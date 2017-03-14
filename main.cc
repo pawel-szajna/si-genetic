@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <random>
 #include <set>
 #include <vector>
 
@@ -74,7 +75,14 @@ int main(int argc, char* argv[])
 
 		s.find_succesors();
 		
-		si::schedulers::optimize(s, assignments, times, population, epochs, cross_prob, mutate_prob, si::schedulers::time_evaluator, [](auto i) {return 0; }, logfile);
+		si::schedulers::optimize(
+			s, assignments, times, 
+			population, epochs, cross_prob, mutate_prob, 
+			si::schedulers::time_evaluator, 
+			si::schedulers::roulette_selector, 
+			logfile
+		);
+		
 		si::io::save(std::cout, s, assignments, times);
 
 		std::getchar();
