@@ -1,12 +1,12 @@
 #include <iostream>
+#include <vector>
+#include <map>
 
 #include "si/schedule.hh"
 
 #include "si/io/io.hh"
 
-namespace si {
-
-namespace io {
+namespace si::io {
 
 const char* separator = "==========================================================";
 
@@ -17,8 +17,6 @@ schedule load(std::istream& is)
 
 void save(std::ostream& os, schedule& s)
 {
-}
-
 }
 
 }

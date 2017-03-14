@@ -1,13 +1,8 @@
 #ifndef GREEDY_HH
 #define GREEDY_HH
 
-namespace si
+namespace si::schedulers
 {
-
-namespace schedulers
-{
-
-}
 
 }
 

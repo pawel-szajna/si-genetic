@@ -6,16 +6,11 @@
 
 #include "si/schedule.hh"
 
-namespace si
-{
-
-namespace io
+namespace si::io
 {
 
 schedule load(std::istream& is);
 void save(std::ostream& os, schedule& s);
-
-}
 
 }
 
