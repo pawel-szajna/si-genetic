@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="si\schedule.cc">
+      <Filter>si</Filter>
+    </ClCompile>
+    <ClCompile Include="si\resource.cc">
+      <Filter>si</Filter>
+    </ClCompile>
+    <ClCompile Include="si\task.cc">
+      <Filter>si</Filter>
+    </ClCompile>
+    <ClCompile Include="si\io\io.cc">
+      <Filter>si\io</Filter>
+    </ClCompile>
+    <ClCompile Include="si\schedulers\genetic.cc">
+      <Filter>si\schedulers</Filter>
+    </ClCompile>
+    <ClCompile Include="si\schedulers\greedy.cc">
+      <Filter>si\schedulers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="si">
+      <UniqueIdentifier>{180b798a-624c-4e59-8863-998da0da77c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="si\io">
+      <UniqueIdentifier>{61c8b576-7123-4d18-9284-bb03e4cece4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="si\schedulers">
+      <UniqueIdentifier>{78fbc839-71f6-4cbf-bee2-c1a967822c66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="si\task.hh">
+      <Filter>si</Filter>
+    </ClInclude>
+    <ClInclude Include="si\schedule.hh">
+      <Filter>si</Filter>
+    </ClInclude>
+    <ClInclude Include="util.hh" />
+    <ClInclude Include="si\resource.hh">
+      <Filter>si</Filter>
+    </ClInclude>
+    <ClInclude Include="si\io\io.hh">
+      <Filter>si\io</Filter>
+    </ClInclude>
+    <ClInclude Include="si\schedulers\genetic.hh">
+      <Filter>si\schedulers</Filter>
+    </ClInclude>
+    <ClInclude Include="si\schedulers\greedy.hh">
+      <Filter>si\schedulers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
