@@ -75,9 +75,10 @@ int roulette_selector(population p)
 	return 0;
 }
 
-void evaluation(schedule& s, population p, sample& scores, evaluator evaluate, int& best, int& avg, int& worst)
+int evaluation(schedule& s, population p, sample& scores, evaluator evaluate, int& best, int& avg, int& worst)
 {
 	unsigned count = p.size();
+	unsigned best_id = -1;
 	worst = std::numeric_limits<int>::min();
 	best = std::numeric_limits<int>::max();
 	avg = 0;
@@ -87,28 +88,37 @@ void evaluation(schedule& s, population p, sample& scores, evaluator evaluate, i
 		scores[i] = score;
 		avg += score;
 		if (worst < score) worst = score;
-		if (best > score) best = score;
+		if (best > score) {
+			best = score;
+			best_id = i;
+		}
 	}
 
 	avg /= count;
+	return best_id;
 }
 
-void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, evaluator evaluate, selector select)
+void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, evaluator evaluate, selector select, std::ostream& log)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
 	int tasks = s.tasks.size();
-	int best, avg, worst;
+	int best, avg, worst, best_id;
 
 	population p = initialize(s, gen, pop, tasks);
 	sample scores(pop, 0);
 
+	log << "epoch;best;avg;worst" << std::endl;
+
 	for (int epoch = 0; epoch < epochs; ++epoch) {
-		evaluation(s, p, scores, evaluate, best, avg, worst);
-		
-		if(!((epoch+1) % 50)) std::cout << "Epoch #" << (epoch+1) << ", best=" << best << ", avg=" << avg << ", worst=" << worst << std::endl;
+		best_id = evaluation(s, p, scores, evaluate, best, avg, worst);
+		log << (epoch + 1) << ";" << best << ";" << avg << ";" << worst << std::endl;
 	}
+
+	assignments = p.at(best_id);
+	times = sample(tasks, 0);
+	build_timestamps(s, assignments, times);
 }
 
 

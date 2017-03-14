@@ -13,7 +13,8 @@ void optimize(
 	schedule& s, 
 	sample& assignments, sample& times, 
 	int pop, int epochs, double cross_prob, double mutate_prob, 
-	evaluator evaluate, selector select
+	evaluator evaluate, selector select,
+	std::ostream& log
 );
 
 int time_evaluator(schedule& s, sample& individual);
