@@ -8,7 +8,7 @@
 #include "si/schedule.hh"
 
 #include "greedy.hh"
-#include <iostream>
+
 namespace si::schedulers
 {
 
