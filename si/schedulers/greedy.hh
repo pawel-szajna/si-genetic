@@ -4,7 +4,8 @@
 namespace si::schedulers
 {
 
-void build_timestamps(schedule& s);
+int  earliest_time(schedule& s, std::vector<int>& times, int task_id);
+void build_timestamps(schedule& s, std::vector<int>& assignments, std::vector<int>& times);
 
 }
 

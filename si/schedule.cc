@@ -40,7 +40,7 @@ void schedule::find_succesors()
 
 	for (auto t : tasks) {
 		for (auto p : t.predecessors) {
-			has_succesors[p] = true;
+			has_succesors[p - 1] = true;
 		}
 	}
 }

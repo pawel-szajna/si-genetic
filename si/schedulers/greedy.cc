@@ -8,7 +8,7 @@
 #include "si/schedule.hh"
 
 #include "greedy.hh"
-
+#include <iostream>
 namespace si::schedulers
 {
 
@@ -28,15 +28,20 @@ void build_timestamps(schedule& s, std::vector<int>& assignments, std::vector<in
 {
 	std::vector<int> finish_times(s.resources.size(), 0);
 
+	auto find_timestamps = [&assignments, &finish_times, &s, &times](task& t) {
+		times[t.id - 1] = std::max(earliest_time(s, times, t.id), finish_times[assignments[t.id - 1] - 1]);
+		finish_times[assignments[t.id - 1] - 1] = times[t.id - 1] + t.duration;
+	};
+	
 	for (auto& t : s.tasks) {
 		if (s.has_succesors[t.id - 1]) {
-			times[t.id - 1] = std::max(earliest_time(s, times, t.id), finish_times[assignments[t.id - 1] - 1]);
+			find_timestamps(t);
 		}
 	}
 
 	for (auto& t : s.tasks) {
 		if (!s.has_succesors[t.id - 1]) {
-			times[t.id - 1] = std::max(earliest_time(s, times, t.id), finish_times[assignments[t.id - 1] - 1]);
+			find_timestamps(t);
 		}
 	}
 }
