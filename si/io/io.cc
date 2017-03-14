@@ -3,7 +3,10 @@
 #include <set>
 #include <vector>
 
+#include "si/task.hh"
+#include "si/resource.hh"
 #include "si/schedule.hh"
+
 #include "util.hh"
 
 #include "si/io/io.hh"

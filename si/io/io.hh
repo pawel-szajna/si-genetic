@@ -1,11 +1,6 @@
 #ifndef IO_HH
 #define IO_HH
 
-#include <vector>
-#include <map>
-
-#include "si/schedule.hh"
-
 namespace si::io
 {
 

@@ -4,6 +4,8 @@
 namespace si::schedulers
 {
 
+void build_timestamps(schedule& s);
+
 }
 
 #endif 

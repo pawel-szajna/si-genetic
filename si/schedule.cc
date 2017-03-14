@@ -4,7 +4,10 @@
 #include <set>
 #include <vector>
 
-#include "schedule.hh"
+#include "si/task.hh"
+#include "si/resource.hh"
+
+#include "si/schedule.hh"
 
 namespace si
 {
@@ -23,12 +26,23 @@ std::vector<int> schedule::satisfying(int task_id)
 {
 	std::vector<int> satisfying;
 	task t = tasks.at(task_id - 1);
-	std::for_each(resources.begin(), resources.end(), [&t, &satisfying](resource res) {
+	for (auto& res : resources) {
 		if (res.skills[t.skill] >= t.skill_level) {
 			satisfying.push_back(res.id);
 		}
-	});
+	}
 	return satisfying;
+}
+
+void schedule::find_succesors()
+{
+	has_succesors = std::vector<bool>(tasks.size(), false);
+
+	for (auto t : tasks) {
+		for (auto p : t.predecessors) {
+			has_succesors[p] = true;
+		}
+	}
 }
 
 }
