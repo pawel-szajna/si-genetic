@@ -15,3 +15,5 @@ The application is a command line utility that reads the input data from standar
 * `-s` selection function parameter, default: 5
 * `-l` filename for optional CSV output
 * `-d` enables debug output when set to 1, default: 0
+* `-ev` sets the evaluator function, options available: `time`, `cost`
+* `-sel` sets the selection function, options available: `roulette`, `tournament`
