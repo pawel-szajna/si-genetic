@@ -75,13 +75,36 @@ int cost_evaluator(schedule& s, sample& individual)
 	return result;
 }
 
-int roulette_selector(sample scores, std::mt19937& gen)
+int tournament_selector(sample scores, std::mt19937& gen, int ind_count)
+{
+	int length = scores.size();
+
+	std::set<int> individuals;
+	std::uniform_int_distribution<> distribution(0, length - 1);
+	
+	while (individuals.size() < ind_count) {
+		individuals.emplace(distribution(gen));
+	}
+
+	int best = -1, best_score = std::numeric_limits<int>::max();
+
+	for (auto& i : individuals) {
+		if (scores.at(i) < best_score) {
+			best_score = scores.at(i);
+			best = i;
+		}
+	}
+
+	return best;
+}
+
+int roulette_selector(sample scores, std::mt19937& gen, int scale)
 {
 	int max = *std::max_element(scores.begin(), scores.end());
 	int min = *std::min_element(scores.begin(), scores.end());
 
 	for (auto& i : scores) {
-		i = max - i + min;
+		i = max - i + (min / scale);
 	}
 
 	int sum = std::accumulate(scores.begin(), scores.end(), 0);
@@ -119,16 +142,15 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 	return best_id;
 }
 
-void crossover(population& p, sample& scores, selector select, int first, double probability, std::mt19937& gen)
+void crossover(population& p, sample& scores, selector select, int sel_param, int first, double probability, std::mt19937& gen)
 {
 	if (std::uniform_real_distribution<>(0, 1)( gen ) < probability) {
-		int second = select(scores, gen);
+		int second = select(scores, gen, sel_param);
 		int length = p.at(first).size();
 		int cut = std::uniform_int_distribution<>(0, length - 1)(gen);
 
 		for (int i = cut; i < p.at(first).size(); ++i) {
 			std::swap((p[first])[i], (p[second])[i]);
-			
 		}
 	}
 }
@@ -143,7 +165,7 @@ void mutation(schedule& s, sample& individual, double mutate_prob, std::mt19937&
 	}
 }
 
-void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, evaluator evaluate, selector select, std::ostream& log)
+void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, int sel_param, evaluator evaluate, selector select, std::ostream& log)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -158,8 +180,8 @@ void optimize(schedule& s, sample& assignments, sample& times, int pop, int epoc
 	log << "epoch;best;avg;worst" << std::endl;
 
 	for (int epoch = 0; epoch < epochs; ++epoch) {
-		int selected = select(scores, gen);
-		crossover(p, scores, select, selected, cross_prob, gen);
+		int selected = select(scores, gen, sel_param);
+		crossover(p, scores, select, sel_param, selected, cross_prob, gen);
 		mutation(s, p[selected], mutate_prob, gen);
 		best_id = evaluation(s, p, scores, evaluate, best, avg, worst);
 		log << (epoch + 1) << ";" << best << ";" << avg << ";" << worst << std::endl;

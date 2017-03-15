@@ -12,4 +12,5 @@ The application is a command line utility that reads the input data from standar
 * `-m` mutation probability, default: 0.01
 * `-p` population size, default: 50
 * `-e` epochs, default: 100
+* `-s` selection function parameter, default: 5
 * `-l` filename for optional CSV output

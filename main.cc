@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 	double mutate_prob = 0.01;
 	int population = 50;
 	int epochs = 100;
+	int sel_param = 5;
 	std::ofstream logfile;
 
 	try {
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
 		// Parse command line arguments
 
 		int argument = 0;
-		while (( ++argument ) * 2 - 1 < argc) {
+		while (( ++argument ) * 2 < argc) {
 			const char* argtext = argv[argument * 2 - 1];
 			if (!strcmp(argtext, "-c")) {
 				cross_prob = lexical_cast<double>( argv[argument * 2] );
@@ -42,6 +43,8 @@ int main(int argc, char* argv[])
 				population = lexical_cast<int>( argv[argument * 2] );
 			} else if (!strcmp(argtext, "-e")) {
 				epochs = lexical_cast<int>( argv[argument * 2] );
+			} else if (!strcmp(argtext, "-s")) {
+				sel_param = lexical_cast<int>( argv[argument * 2] );
 			} else if (!strcmp(argtext, "-l")) {
 				logfile.open(argv[argument * 2], std::ofstream::out);
 			} else {
@@ -60,9 +63,9 @@ int main(int argc, char* argv[])
 		
 		si::schedulers::optimize(
 			s, assignments, times, 
-			population, epochs, cross_prob, mutate_prob, 
+			population, epochs, cross_prob, mutate_prob, sel_param,
 			si::schedulers::time_evaluator, 
-			si::schedulers::roulette_selector, 
+			si::schedulers::tournament_selector, 
 			logfile
 		);
 		
