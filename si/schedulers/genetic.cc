@@ -28,7 +28,7 @@ std::string sample_text(sample& s)
 
 int random_valid_resource(schedule& s, std::mt19937& gen, int id)
 {
-	return (std::uniform_int_distribution<>(0, s.cities.size() - 1)( gen ));
+	return (std::uniform_int_distribution<>(1, s.cities.size())( gen ));
 }
 
 population initialize(schedule& s, std::mt19937& gen, int pop, int tasks)
@@ -58,13 +58,13 @@ int distance_evaluator(schedule& s, sample& individual)
 	for (unsigned i = 1; i < individual.size(); ++i) {
 		city prev = s.cities.at(individual.at(i - 1) - 1);
 		city current = s.cities.at(individual.at(i) - 1);
-		result += std::sqrt(std::pow(prev.x - current.x, 2) + std::pow(prev.y - current.y, 2));
+		result += std::sqrt((prev.x - current.x)*( prev.x - current.x ) + (prev.y - current.y, 2)*( prev.y - current.y, 2 )) / 100;
 	}
 
 	return (int)result;
 }
 
-int tournament_selector(sample scores, std::mt19937& gen, int ind_count, bool d)
+int tournament_selector(sample& scores, std::mt19937& gen, int ind_count, bool d)
 {
 	if(d) std::cout << "Tournament: { ";
 	int length = scores.size();
@@ -93,24 +93,26 @@ int tournament_selector(sample scores, std::mt19937& gen, int ind_count, bool d)
 	return best;
 }
 
-int roulette_selector(sample scores, std::mt19937& gen, int scale, bool d)
+int roulette_selector(sample& scores, std::mt19937& gen, int scale, bool d)
 {
+	sample adjusted_scores;
+	
 	int max = *std::max_element(scores.begin(), scores.end());
 	int min = *std::min_element(scores.begin(), scores.end());
-
+	
 	for (auto& i : scores) {
-		i = max - i + (min / scale);
+		adjusted_scores.push_back(max - i + (min / scale));
 	}
 
-	int sum = std::accumulate(scores.begin(), scores.end(), 0);
+	int sum = std::accumulate(adjusted_scores.begin(), adjusted_scores.end(), 0);
 	int target = std::uniform_int_distribution<>(0, sum - 1)( gen );
 	int current = 0;
 
-	for (unsigned i = 0; i < scores.size(); ++i) {
-		if (current + scores.at(i) > target) {
+	for (int i = 0; i < adjusted_scores.size(); ++i) {
+		if (current + adjusted_scores.at(i) > target) {
 			return i;
 		}
-		current += scores.at(i);
+		current += adjusted_scores.at(i);
 	}
 }
 
@@ -178,20 +180,20 @@ void optimize(schedule& s, sample& assignments, int pop, int epochs, double cros
 
 	int tasks = s.cities.size();
 	int best, avg, worst, best_id;
-	//int step = epochs / 20;
+	int step = epochs < 1000 ? epochs / 20 : epochs / 100;
 
 	population p = initialize(s, gen, pop, tasks);
 	sample scores(pop, 0);
 	best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
-	log << "epoch;best;avg;worst" << std::endl;
+	log << "#epoch,best,avg,worst" << std::endl;
 
 	for (int epoch = 0; epoch < epochs; ++epoch) {
 		int selected = select(scores, gen, sel_param, d);
 		crossover(p, scores, select, sel_param, selected, cross_prob, gen, d);
 		mutation(s, p[selected], mutate_prob, gen, d);
 		best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
-		log << (epoch + 1) << ";" << best << ";" << avg << ";" << worst << std::endl;
-		//if (!( epoch % step )) std::cout << ( 100 * epoch / epochs ) << "%" << std::endl;
+		log << (epoch + 1) << "," << best << "," << avg << "," << worst << std::endl;
+		if (!( epoch % step )) std::cerr << ( 100 * epoch / epochs ) << "% | epoch=" << epoch << " best=" << best << " avg=" << avg << " worst=" << worst << std::endl;
 	}
 
 	assignments = p.at(best_id);

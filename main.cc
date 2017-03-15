@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
 	int sel_param = 5;
 	bool debug = false;
 	std::ofstream logfile;
+	si::schedulers::selector selector = si::schedulers::tournament_selector;
 
 	try {
 
@@ -44,6 +45,14 @@ int main(int argc, char* argv[])
 				sel_param = lexical_cast<int>( argv[argument * 2] );
 			} else if (!strcmp(argtext, "-d")) {
 				debug = lexical_cast<bool>( argv[argument * 2] );
+			} else if (!strcmp(argtext, "-sel")) {
+				if (!strcmp(argv[argument * 2], "roulette")) {
+					selector = si::schedulers::roulette_selector;
+				} else if (!strcmp(argv[argument * 2], "tournament")) {
+					selector = si::schedulers::tournament_selector;
+				} else {
+					throw std::invalid_argument("Invalid selector function: " + std::string(argv[argument * 2]));
+				}
 			} else if (!strcmp(argtext, "-l")) {
 				logfile.open(argv[argument * 2], std::ofstream::out);
 			} else {
@@ -60,8 +69,7 @@ int main(int argc, char* argv[])
 		si::schedulers::optimize(
 			j, assignments, 
 			population, epochs, cross_prob, mutate_prob, sel_param,
-			si::schedulers::distance_evaluator, 
-			si::schedulers::tournament_selector, 
+			si::schedulers::distance_evaluator, selector, 
 			logfile, debug
 		);
 		
