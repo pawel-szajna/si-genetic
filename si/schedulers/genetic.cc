@@ -167,7 +167,7 @@ void crossover(population& p, sample& scores, selector select, int sel_param, in
 	if (std::uniform_real_distribution<>(0, 1)( gen ) < probability) {
 		int second = select(scores, gen, sel_param, d);
 		int length = p.at(first).size();
-		int cut = std::uniform_int_distribution<>(0, length - 1)(gen);
+		int cut = std::uniform_int_distribution<>(1, length - 2)(gen);
 
 		if(d) std::cout << "Crossover: " << sample_text(p.at(first)) << "x" << sample_text(p.at(second)) << "@" << cut << " = ";
 
