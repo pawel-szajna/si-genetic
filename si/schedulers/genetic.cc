@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <functional>
+#include <list>
 #include <map>
 #include <numeric>
 #include <random>
@@ -34,10 +35,11 @@ int random_valid_resource(schedule& s, std::mt19937& gen, int id)
 population initialize(schedule& s, std::mt19937& gen, int pop, int tasks)
 {
 	population p(pop, std::vector<int>(tasks, -1));
+	sample cities(tasks, 0);
+	std::iota(cities.begin(), cities.end(), 1);
 	for (auto& individual : p) {
-		for (int i = 0; i < tasks; ++i) {
-			individual[i] = random_valid_resource(s, gen, i);
-		}
+		std::shuffle(cities.begin(), cities.end(), gen);
+		individual = cities;
 	}
 	return p;
 }
@@ -55,10 +57,10 @@ int distance_evaluator(schedule& s, sample& individual)
 {
 	double result = 0;
 	
-	for (unsigned i = 1; i < individual.size(); ++i) {
+	for (unsigned i = 1; i <= individual.size(); ++i) {
 		city prev = s.cities.at(individual.at(i - 1) - 1);
-		city current = s.cities.at(individual.at(i) - 1);
-		result += std::sqrt((prev.x - current.x)*( prev.x - current.x ) + (prev.y - current.y, 2)*( prev.y - current.y, 2 )) / 100;
+		city current = s.cities.at(individual.at(i % individual.size()) - 1);
+		result += std::sqrt((prev.x - current.x)*( prev.x - current.x ) + (prev.y - current.y, 2)*( prev.y - current.y, 2 ));
 	}
 
 	return (int)result;
@@ -147,9 +149,13 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 void crossover(population& p, sample& scores, selector select, int sel_param, int first, double probability, std::mt19937& gen, bool d)
 {
 	if (std::uniform_real_distribution<>(0, 1)( gen ) < probability) {
-		int second = select(scores, gen, sel_param, d);
+		int second = first;
 		int length = p.at(first).size();
 		int cut = std::uniform_int_distribution<>(1, length - 2)(gen);
+
+		while (second == first) {
+			second = select(scores, gen, sel_param, d);
+		}
 
 		if(d) std::cout << "Crossover: " << sample_text(p.at(first)) << "x" << sample_text(p.at(second)) << "@" << cut << " = ";
 
@@ -167,7 +173,8 @@ void mutation(schedule& s, sample& individual, double mutate_prob, std::mt19937&
 	for (int i = 0; i < individual.size(); ++i) {
 		if (distribution(gen) < mutate_prob) {
 			if(d) std::cout << "Mutating " << sample_text(individual) << "@" << i << " to ";
-			individual[i] = random_valid_resource(s, gen, i);
+			int target = std::uniform_int_distribution<>(0, individual.size() - 1)(gen);
+			std::swap(individual[i], individual[target]);
 			if(d) std::cout << sample_text(individual) << std::endl;
 		}
 	}
