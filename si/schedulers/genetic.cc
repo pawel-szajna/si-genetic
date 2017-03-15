@@ -7,10 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "si/resource.hh"
-#include "si/task.hh"
-#include "si/schedule.hh"
-#include "si/schedulers/greedy.hh"
+#include "si/city.hh"
+#include "si/journey.hh"
 
 #include "genetic.hh"
 
@@ -30,11 +28,7 @@ std::string sample_text(sample& s)
 
 int random_valid_resource(schedule& s, std::mt19937& gen, int id)
 {
-	std::vector<int> valid = s.satisfying(id + 1);
-	if (valid.empty()) {
-		throw std::invalid_argument("No resource can solve task #" + std::to_string(id + 1));
-	}
-	return valid.at(std::uniform_int_distribution<>(0, valid.size() - 1)( gen ));
+	return (std::uniform_int_distribution<>(0, s.cities.size() - 1)( gen ));
 }
 
 population initialize(schedule& s, std::mt19937& gen, int pop, int tasks)
@@ -57,31 +51,17 @@ void print_individual(sample& v)
 	std::cout << "]\n";
 }
 
-int time_evaluator(schedule& s, sample& individual)
+int distance_evaluator(schedule& s, sample& individual)
 {
-	int result = 0;
-	sample times(individual.size(), 0);
-	build_timestamps(s, individual, times);
+	double result = 0;
 	
-	for (unsigned i = 0; i < individual.size(); ++i) {
-		int current = s.tasks.at(i).duration + times.at(i);
-		if (current > result) {
-			result = current;
-		}
+	for (unsigned i = 1; i < individual.size(); ++i) {
+		city prev = s.cities.at(individual.at(i - 1) - 1);
+		city current = s.cities.at(individual.at(i) - 1);
+		result += std::sqrt(std::pow(prev.x - current.x, 2) + std::pow(prev.y - current.y, 2));
 	}
 
-	return result;
-}
-
-int cost_evaluator(schedule& s, sample& individual)
-{
-	int result = 0;
-
-	for (unsigned i = 0; i < individual.size(); ++i) {
-		result += (int)((double)(s.task_at(i + 1).duration) * s.resource_at(individual.at(i)).salary);
-	}
-
-	return result;
+	return (int)result;
 }
 
 int tournament_selector(sample scores, std::mt19937& gen, int ind_count, bool d)
@@ -191,12 +171,12 @@ void mutation(schedule& s, sample& individual, double mutate_prob, std::mt19937&
 	}
 }
 
-void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, int sel_param, evaluator evaluate, selector select, std::ostream& log, bool d)
+void optimize(schedule& s, sample& assignments, int pop, int epochs, double cross_prob, double mutate_prob, int sel_param, evaluator evaluate, selector select, std::ostream& log, bool d)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	int tasks = s.tasks.size();
+	int tasks = s.cities.size();
 	int best, avg, worst, best_id;
 	//int step = epochs / 20;
 
@@ -215,8 +195,6 @@ void optimize(schedule& s, sample& assignments, sample& times, int pop, int epoc
 	}
 
 	assignments = p.at(best_id);
-	times = sample(tasks, 0);
-	build_timestamps(s, assignments, times);
 }
 
 

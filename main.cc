@@ -1,19 +1,15 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <random>
-#include <set>
 #include <vector>
 
-#include "si/task.hh"
-#include "si/resource.hh"
-#include "si/schedule.hh"
+#include "si/city.hh"
+#include "si/journey.hh"
 
 #include "si/io/io.hh"
 
 #include "si/schedulers/genetic.hh"
-#include "si/schedulers/greedy.hh"
 
 #include "util.hh"
 
@@ -58,21 +54,18 @@ int main(int argc, char* argv[])
 
 		// Do the scheduling
 
-		si::schedule s = si::io::load(std::cin);
+		si::journey j = si::io::load(std::cin);
 		si::schedulers::sample assignments;
-		si::schedulers::sample times;
-		
-		s.find_succesors();
 		
 		si::schedulers::optimize(
-			s, assignments, times, 
+			j, assignments, 
 			population, epochs, cross_prob, mutate_prob, sel_param,
-			si::schedulers::time_evaluator, 
+			si::schedulers::distance_evaluator, 
 			si::schedulers::tournament_selector, 
 			logfile, debug
 		);
 		
-		si::io::save(std::cout, s, assignments, times);
+		si::io::save(std::cout, j, assignments);
 
 	} catch (const std::invalid_argument& e) {
 		std::cerr << "Execution failed: " << e.what() << std::endl;

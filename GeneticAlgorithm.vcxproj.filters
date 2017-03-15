@@ -2,23 +2,17 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cc" />
-    <ClCompile Include="si\schedule.cc">
-      <Filter>si</Filter>
-    </ClCompile>
-    <ClCompile Include="si\resource.cc">
-      <Filter>si</Filter>
-    </ClCompile>
-    <ClCompile Include="si\task.cc">
-      <Filter>si</Filter>
-    </ClCompile>
     <ClCompile Include="si\io\io.cc">
       <Filter>si\io</Filter>
     </ClCompile>
     <ClCompile Include="si\schedulers\genetic.cc">
       <Filter>si\schedulers</Filter>
     </ClCompile>
-    <ClCompile Include="si\schedulers\greedy.cc">
-      <Filter>si\schedulers</Filter>
+    <ClCompile Include="si\journey.cc">
+      <Filter>si</Filter>
+    </ClCompile>
+    <ClCompile Include="si\city.cc">
+      <Filter>si</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -33,24 +27,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="si\task.hh">
-      <Filter>si</Filter>
-    </ClInclude>
-    <ClInclude Include="si\schedule.hh">
-      <Filter>si</Filter>
-    </ClInclude>
     <ClInclude Include="util.hh" />
-    <ClInclude Include="si\resource.hh">
-      <Filter>si</Filter>
-    </ClInclude>
     <ClInclude Include="si\io\io.hh">
       <Filter>si\io</Filter>
     </ClInclude>
     <ClInclude Include="si\schedulers\genetic.hh">
       <Filter>si\schedulers</Filter>
     </ClInclude>
-    <ClInclude Include="si\schedulers\greedy.hh">
-      <Filter>si\schedulers</Filter>
+    <ClInclude Include="si\journey.hh">
+      <Filter>si</Filter>
+    </ClInclude>
+    <ClInclude Include="si\city.hh">
+      <Filter>si</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

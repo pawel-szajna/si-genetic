@@ -116,19 +116,15 @@
   <ItemGroup>
     <ClCompile Include="main.cc" />
     <ClCompile Include="si\io\io.cc" />
-    <ClCompile Include="si\resource.cc" />
-    <ClCompile Include="si\schedule.cc" />
+    <ClCompile Include="si\journey.cc" />
     <ClCompile Include="si\schedulers\genetic.cc" />
-    <ClCompile Include="si\schedulers\greedy.cc" />
-    <ClCompile Include="si\task.cc" />
+    <ClCompile Include="si\city.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="si\io\io.hh" />
-    <ClInclude Include="si\resource.hh" />
-    <ClInclude Include="si\schedule.hh" />
+    <ClInclude Include="si\journey.hh" />
     <ClInclude Include="si\schedulers\genetic.hh" />
-    <ClInclude Include="si\schedulers\greedy.hh" />
-    <ClInclude Include="si\task.hh" />
+    <ClInclude Include="si\city.hh" />
     <ClInclude Include="util.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
