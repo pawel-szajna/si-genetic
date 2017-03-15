@@ -86,22 +86,19 @@ int cost_evaluator(schedule& s, sample& individual)
 
 int tournament_selector(sample scores, std::mt19937& gen, int ind_count, bool d)
 {
-	if(d) std::cout << "Tournament: { ";
 	int length = scores.size();
-
+	int best = -1, best_score = std::numeric_limits<int>::max();
 	std::set<int> individuals;
 	std::uniform_int_distribution<> distribution(0, length - 1);
-	
+
+	if (d) std::cout << "Tournament: { ";
+
 	while (individuals.size() < ind_count) {
 		individuals.emplace(distribution(gen));
 	}
 
-	int best = -1, best_score = std::numeric_limits<int>::max();
-
 	for (auto& i : individuals) {
-		
 		if(d) std::cout << i << ":" << scores.at(i) << " ";
-
 		if (scores.at(i) < best_score) {
 			best_score = scores.at(i);
 			best = i;
