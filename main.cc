@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 	int population = 50;
 	int epochs = 100;
 	int sel_param = 5;
+	bool debug = false;
 	std::ofstream logfile;
 
 	try {
@@ -45,6 +46,8 @@ int main(int argc, char* argv[])
 				epochs = lexical_cast<int>( argv[argument * 2] );
 			} else if (!strcmp(argtext, "-s")) {
 				sel_param = lexical_cast<int>( argv[argument * 2] );
+			} else if (!strcmp(argtext, "-d")) {
+				debug = lexical_cast<bool>( argv[argument * 2] );
 			} else if (!strcmp(argtext, "-l")) {
 				logfile.open(argv[argument * 2], std::ofstream::out);
 			} else {
@@ -66,7 +69,7 @@ int main(int argc, char* argv[])
 			population, epochs, cross_prob, mutate_prob, sel_param,
 			si::schedulers::time_evaluator, 
 			si::schedulers::tournament_selector, 
-			logfile
+			logfile, debug
 		);
 		
 		si::io::save(std::cout, s, assignments, times);

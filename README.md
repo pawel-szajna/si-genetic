@@ -14,3 +14,4 @@ The application is a command line utility that reads the input data from standar
 * `-e` epochs, default: 100
 * `-s` selection function parameter, default: 5
 * `-l` filename for optional CSV output
+* `-d` enables debug output when set to 1, default: 0
