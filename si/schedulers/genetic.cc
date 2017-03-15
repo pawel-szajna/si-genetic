@@ -195,20 +195,20 @@ void optimize(schedule& s, sample& assignments, sample& times, int pop, int epoc
 
 	int tasks = s.tasks.size();
 	int best, avg, worst, best_id;
-	//int step = epochs / 20;
+	int step = epochs / 20;
 
 	population p = initialize(s, gen, pop, tasks);
 	sample scores(pop, 0);
 	best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
-	log << "epoch;best;avg;worst" << std::endl;
+	//log << "epoch;best;avg;worst" << std::endl;
 
 	for (int epoch = 0; epoch < epochs; ++epoch) {
 		int selected = select(scores, gen, sel_param, d);
 		crossover(p, scores, select, sel_param, selected, cross_prob, gen, d);
 		mutation(s, p[selected], mutate_prob, gen, d);
 		best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
-		log << (epoch + 1) << ";" << best << ";" << avg << ";" << worst << std::endl;
-		//if (!( epoch % step )) std::cout << ( 100 * epoch / epochs ) << "%" << std::endl;
+		log << (epoch + 1) << "," << best << "," << avg << "," << worst << std::endl;
+		if (!( epoch % step )) std::err << ( 100 * epoch / epochs ) << "%" << std::endl;
 	}
 
 	assignments = p.at(best_id);
