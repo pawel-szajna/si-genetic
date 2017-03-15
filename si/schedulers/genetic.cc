@@ -91,21 +91,21 @@ int tournament_selector(sample scores, std::mt19937& gen, int ind_count, bool d)
 	std::set<int> individuals;
 	std::uniform_int_distribution<> distribution(0, length - 1);
 
-	if (d) std::cout << "Tournament: { ";
+	if(d) std::cerr << "Tournament: { ";
 
 	while (individuals.size() < ind_count) {
 		individuals.emplace(distribution(gen));
 	}
 
 	for (auto& i : individuals) {
-		if(d) std::cout << i << ":" << scores.at(i) << " ";
+		if(d) std::cerr << i << ":" << scores.at(i) << " ";
 		if (scores.at(i) < best_score) {
 			best_score = scores.at(i);
 			best = i;
 		}
 	}
 
-	if(d) std::cout << "}, chose " << best << ":" << best_score << std::endl;
+	if(d) std::cerr << "}, chose " << best << ":" << best_score << std::endl;
 
 	return best;
 }
@@ -131,10 +131,9 @@ int roulette_selector(sample scores, std::mt19937& gen, int scale, bool d)
 	}
 }
 
-int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, int& best, int& avg, int& worst, bool d)
+int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, int& best, int& avg, int& worst, int& best_id, int& worst_id, bool d)
 {
 	unsigned count = p.size();
-	unsigned best_id = -1;
 	worst = std::numeric_limits<int>::min();
 	best = std::numeric_limits<int>::max();
 	avg = 0;
@@ -146,7 +145,10 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 		if(d) std::cout << sample_text(p.at(i)) << ":" << score << " ";
 		scores[i] = score;
 		avg += score;
-		if (worst < score) worst = score;
+		if (worst < score) {
+			worst = score;
+			worst_id = i;
+		}
 		if (best > score) {
 			best = score;
 			best_id = i;
@@ -156,27 +158,25 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 	if(d) std::cout << "]" << std::endl;
 	
 	avg /= count;
-	return best_id;
 }
 
-void crossover(population& p, sample& scores, selector select, int sel_param, int first, double probability, std::mt19937& gen, bool d)
+void crossover(population& p, sample& first, sample& second, double probability, std::mt19937& gen, bool d)
 {
 	if (std::uniform_real_distribution<>(0, 1)( gen ) < probability) {
-		int second = select(scores, gen, sel_param, d);
-		int length = p.at(first).size();
+		int length = first.size();
 		int cut = std::uniform_int_distribution<>(1, length - 2)(gen);
 
-		if(d) std::cout << "Crossover: " << sample_text(p.at(first)) << "x" << sample_text(p.at(second)) << "@" << cut << " = ";
+		if(d) std::cout << "Crossover: " << sample_text(first) << "x" << sample_text(second) << "@" << cut << " = ";
 
-		for (int i = cut; i < p.at(first).size(); ++i) {
-			std::swap((p[first])[i], (p[second])[i]);
+		for (int i = cut; i < length; ++i) {
+			std::swap((first)[i], (second)[i]);
 		}
 
-		if(d) std::cout << sample_text(p.at(first)) << ", " << sample_text(p.at(second)) << std::endl;
+		if(d) std::cout << sample_text(first) << ", " << sample_text(second) << std::endl;
 	}
 }
 
-void mutation(schedule& s, sample& individual, double mutate_prob, std::mt19937& gen, bool d)
+sample mutation(schedule& s, sample individual, double mutate_prob, std::mt19937& gen, bool d)
 {
 	std::uniform_real_distribution<> distribution(0, 1);
 	for (int i = 0; i < individual.size(); ++i) {
@@ -186,6 +186,7 @@ void mutation(schedule& s, sample& individual, double mutate_prob, std::mt19937&
 			if(d) std::cout << sample_text(individual) << std::endl;
 		}
 	}
+	return individual;
 }
 
 void optimize(schedule& s, sample& assignments, sample& times, int pop, int epochs, double cross_prob, double mutate_prob, int sel_param, evaluator evaluate, selector select, std::ostream& log, bool d)
@@ -193,22 +194,29 @@ void optimize(schedule& s, sample& assignments, sample& times, int pop, int epoc
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
+	if (pop % 2) ++pop;
+
 	int tasks = s.tasks.size();
-	int best, avg, worst, best_id;
+	int best, avg, worst, best_id, worst_id;
 	int step = epochs / 20;
 
 	population p = initialize(s, gen, pop, tasks);
 	sample scores(pop, 0);
-	best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
-	//log << "epoch;best;avg;worst" << std::endl;
+	evaluation(s, p, scores, evaluate, best, avg, worst, best_id, worst_id, d);
 
 	for (int epoch = 0; epoch < epochs; ++epoch) {
-		int selected = select(scores, gen, sel_param, d);
-		crossover(p, scores, select, sel_param, selected, cross_prob, gen, d);
-		mutation(s, p[selected], mutate_prob, gen, d);
-		best_id = evaluation(s, p, scores, evaluate, best, avg, worst, d);
+		population new_population;
+		while (new_population.size() < pop) {
+			sample child1 = p.at(select(scores, gen, sel_param, d));
+			sample child2 = p.at(select(scores, gen, sel_param, d));
+			crossover(p, child1, child2, cross_prob, gen, d);
+			new_population.push_back(mutation(s, child1, mutate_prob, gen, d));
+			new_population.push_back(mutation(s, child2, mutate_prob, gen, d));
+		}
+		p = new_population;
+		evaluation(s, p, scores, evaluate, best, avg, worst, best_id, worst_id, d);
 		log << (epoch + 1) << "," << best << "," << avg << "," << worst << std::endl;
-		if (!( epoch % step )) std::err << ( 100 * epoch / epochs ) << "%" << std::endl;
+		if (!( epoch % step )) std::cerr << ( 100 * epoch / epochs ) << "%" << std::endl;
 	}
 
 	assignments = p.at(best_id);
