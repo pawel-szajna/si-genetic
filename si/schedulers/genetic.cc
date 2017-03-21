@@ -78,7 +78,7 @@ int cost_evaluator(schedule& s, sample& individual)
 	int result = 0;
 
 	for (unsigned i = 0; i < individual.size(); ++i) {
-		result += (int)((double)(s.task_at(i + 1).duration) * s.resource_at(individual.at(i)).salary);
+		result += (int)((double)(s.tasks.at(i).duration) * s.resources.at(individual.at(i) - 1).salary);
 	}
 
 	return result;
@@ -138,11 +138,11 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 	best = std::numeric_limits<int>::max();
 	avg = 0;
 
-	if(d) std::cout << "Evaluation: [ ";
+	if(d) std::cerr << "Evaluation: [ ";
 
 	for (unsigned i = 0; i < count; ++i) {
 		int score = evaluate(s, p.at(i));
-		if(d) std::cout << sample_text(p.at(i)) << ":" << score << " ";
+		if(d) std::cerr << sample_text(p.at(i)) << ":" << score << " ";
 		scores[i] = score;
 		avg += score;
 		if (worst < score) {
@@ -155,7 +155,7 @@ int evaluation(schedule& s, population& p, sample& scores, evaluator evaluate, i
 		}
 	}
 
-	if(d) std::cout << "]" << std::endl;
+	if(d) std::cerr << "]" << std::endl;
 	
 	avg /= count;
 }
@@ -166,13 +166,13 @@ void crossover(population& p, sample& first, sample& second, double probability,
 		int length = first.size();
 		int cut = std::uniform_int_distribution<>(1, length - 2)(gen);
 
-		if(d) std::cout << "Crossover: " << sample_text(first) << "x" << sample_text(second) << "@" << cut << " = ";
+		if(d) std::cerr << "Crossover: " << sample_text(first) << "x" << sample_text(second) << "@" << cut << " = ";
 
 		for (int i = cut; i < length; ++i) {
 			std::swap((first)[i], (second)[i]);
 		}
 
-		if(d) std::cout << sample_text(first) << ", " << sample_text(second) << std::endl;
+		if(d) std::cerr << sample_text(first) << ", " << sample_text(second) << std::endl;
 	}
 }
 
@@ -181,9 +181,9 @@ sample mutation(schedule& s, sample individual, double mutate_prob, std::mt19937
 	std::uniform_real_distribution<> distribution(0, 1);
 	for (int i = 0; i < individual.size(); ++i) {
 		if (distribution(gen) < mutate_prob) {
-			if(d) std::cout << "Mutating " << sample_text(individual) << "@" << i << " to ";
+			if(d) std::cerr << "Mutating " << sample_text(individual) << "@" << i << " to ";
 			individual[i] = random_valid_resource(s, gen, i);
-			if(d) std::cout << sample_text(individual) << std::endl;
+			if(d) std::cerr << sample_text(individual) << std::endl;
 		}
 	}
 	return individual;
